@@ -1,0 +1,188 @@
+
+<div class="page">
+  <header class="navbar">
+    <a class="logo" href="#" (click)="restartQuiz(); $event.preventDefault()">
+      <span class="logo-icon">Q</span>
+      QuizMaster
+    </a>
+
+    <span class="header-label">DEIN WISSEN. DEIN QUIZ.</span>
+  </header>
+
+  <main class="container">
+
+    @if (screen === 'start') {
+      <section class="welcome">
+        <div class="illustration">
+          <div class="circle circle-one"></div>
+          <div class="circle circle-two"></div>
+          <div class="quiz-symbol">?</div>
+          <span class="star star-one">✦</span>
+          <span class="star star-two">✧</span>
+        </div>
+
+        <span class="eyebrow">WILLKOMMEN BEI QUIZMASTER</span>
+        <h1>Wie gut kennst du dich aus?</h1>
+        <p class="intro">
+          Teste dein Wissen, sammle Punkte und entdecke,
+          was du alles draufhast.
+        </p>
+
+        <div class="category-selection">
+          <h2>Wähle eine Kategorie</h2>
+
+          <button
+            class="category-card"
+            [class.category-selected]="selectedCategory === 'Informatik'"
+            (click)="selectedCategory = 'Informatik'">
+            <span class="category-icon purple-icon">&lt;/&gt;</span>
+            <span class="category-text">
+              <strong>Informatik</strong>
+              <small>Programmieren und Technik</small>
+            </span>
+            <span class="radio-dot"></span>
+          </button>
+
+          <button
+            class="category-card"
+            [class.category-selected]="selectedCategory === 'Allgemeinwissen'"
+            (click)="selectedCategory = 'Allgemeinwissen'">
+            <span class="category-icon orange-icon">✦</span>
+            <span class="category-text">
+              <strong>Allgemeinwissen</strong>
+              <small>Wissen aus dem Alltag</small>
+            </span>
+            <span class="radio-dot"></span>
+          </button>
+        </div>
+
+        <button class="primary-button start-button" (click)="startQuiz()">
+          Quiz starten <span>→</span>
+        </button>
+
+        <p class="small-note">5 Fragen · 4 Antwortmöglichkeiten</p>
+      </section>
+    }
+
+    @if (screen === 'quiz') {
+      <section class="quiz-panel">
+        <div class="quiz-top">
+          <button class="back-button" (click)="restartQuiz()">
+            ← Beenden
+          </button>
+          <span class="question-counter">
+            Frage {{ currentIndex + 1 }} von {{ questions.length }}
+          </span>
+        </div>
+
+        <div class="progress-track">
+          <div class="progress-fill" [style.width.%]="progress"></div>
+        </div>
+
+        <div class="question-content">
+          <span class="eyebrow">{{ currentQuestion.category }}</span>
+          <h1>{{ currentQuestion.text }}</h1>
+          <p class="answer-hint">Wähle die richtige Antwort.</p>
+
+          <div class="answers">
+            @for (answer of currentQuestion.answers; track answer; let i = $index) {
+              <button
+                class="answer-option"
+                [class.answer-selected]="selectedAnswer === i"
+                [class.answer-correct]="selectedAnswer !== null && i === currentQuestion.correctAnswer"
+                [class.answer-wrong]="selectedAnswer === i && i !== currentQuestion.correctAnswer"
+                [disabled]="selectedAnswer !== null"
+                (click)="selectAnswer(i)">
+
+                <span class="answer-letter">
+                  {{ ['A', 'B', 'C', 'D'][i] }}
+                </span>
+                <span>{{ answer }}</span>
+
+                @if (selectedAnswer !== null && i === currentQuestion.correctAnswer) {
+                  <span class="answer-mark">✓</span>
+                }
+                @if (selectedAnswer === i && i !== currentQuestion.correctAnswer) {
+                  <span class="answer-mark">✕</span>
+                }
+              </button>
+            }
+          </div>
+
+          @if (selectedAnswer !== null) {
+            <div class="feedback"
+              [class.feedback-correct]="selectedAnswer === currentQuestion.correctAnswer"
+              [class.feedback-wrong]="selectedAnswer !== currentQuestion.correctAnswer">
+              @if (selectedAnswer === currentQuestion.correctAnswer) {
+                Richtig! Sehr gut gemacht.
+              } @else {
+                Leider falsch. Die richtige Antwort ist:
+                {{ currentQuestion.answers[currentQuestion.correctAnswer] }}.
+              }
+            </div>
+          }
+
+          <button
+            class="primary-button next-button"
+            [disabled]="selectedAnswer === null"
+            (click)="nextQuestion()">
+            {{ currentIndex === questions.length - 1 ? 'Ergebnis anzeigen' : 'Nächste Frage' }}
+            <span>→</span>
+          </button>
+        </div>
+      </section>
+    }
+
+    @if (screen === 'result') {
+      <section class="result-panel">
+        <div class="result-icon">
+          @if (resultPercentage >= 80) {
+            🏆
+          } @else if (resultPercentage >= 50) {
+            ⭐
+          } @else {
+            💪
+          }
+        </div>
+
+        <span class="eyebrow">QUIZ ABGESCHLOSSEN</span>
+        <h1>
+          @if (resultPercentage >= 80) {
+            Hervorragend!
+          } @else if (resultPercentage >= 50) {
+            Gut gemacht!
+          } @else {
+            Weiter üben!
+          }
+        </h1>
+
+        <p class="intro">Du hast das Quiz erfolgreich beendet.</p>
+
+        <div class="score-circle">
+          <strong>{{ resultPercentage }}%</strong>
+          <span>dein Ergebnis</span>
+        </div>
+
+        <div class="result-stats">
+          <div>
+            <strong>{{ score }}</strong>
+            <span>Richtige Antworten</span>
+          </div>
+          <div>
+            <strong>{{ questions.length - score }}</strong>
+            <span>Falsche Antworten</span>
+          </div>
+        </div>
+
+        <button class="primary-button start-button" (click)="restartQuiz()">
+          Noch einmal spielen <span>↻</span>
+        </button>
+      </section>
+    }
+
+  </main>
+
+  <footer>
+    QuizMaster · Selbst entwickelt mit Angular
+  </footer>
+</div>
